@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "936328801204",
+    "project_id": "flutter-gregtext-game",
+    "storage_bucket": "flutter-gregtext-game.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:936328801204:android:41ec39c3159b7ae390e0e1",
+        "android_client_info": {
+          "package_name": "com.example.flutter_gregtext_game"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP9yJMdjeT6csmo7B_eRcmflakUHyzAiA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
