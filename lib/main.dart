@@ -44,7 +44,11 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [Provider(create: (_) => LocalStorageService(widget.prefs))],
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => LocalStorageService(widget.prefs),
+        ),
+      ],
       child: MaterialApp.router(
         title: "Gregtext",
         theme: ThemeData.dark().copyWith(

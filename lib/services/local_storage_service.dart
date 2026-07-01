@@ -16,7 +16,7 @@ class LocalStorageService extends ChangeNotifier {
   LocalStorageService(this._prefs);
 
   // Save last used profile
-  Future<void> saveLastProfile(String profileId) async {
+  Future<void> setLastProfile(String profileId) async {
     await _prefs.setString(_keyLastProfileId, jsonEncode(profileId));
   }
 
@@ -26,12 +26,13 @@ class LocalStorageService extends ChangeNotifier {
     return profileId;
   }
 
-  Future<void> saveProfiles(List<Profile> profiles) async {
+  Future<void> setProfiles(List<Profile> profiles) async {
     final List<String> jsonList = profiles
         .map((profile) => profile.toJson())
         .toList();
     final String jsonString = jsonEncode(jsonList);
     await _prefs.setString(_keyProfiles, jsonString);
+    notifyListeners();
   }
 
   List<Profile> getProfiles() {
@@ -47,9 +48,10 @@ class LocalStorageService extends ChangeNotifier {
     }
   }
 
-  Future<void> saveUser(User user) async {
+  Future<void> setUser(User user) async {
     String key = _keyUser + user.userId;
     await _prefs.setString(key, user.toJson());
+    notifyListeners();
   }
 
   User getUserById(String userId) {
