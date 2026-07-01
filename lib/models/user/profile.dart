@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 // ProfileIds = UserIds
 // this is use to select profiles/users without loading inventories and heavy stuff, just ids, names and info stuff
@@ -8,7 +10,7 @@ class Profile {
   String profileId;
   String profileName;
   DateTime createDate;
-  DateTime playedTime;
+  Duration playedTime;
   int gameStage;
 
   Profile({
@@ -24,7 +26,7 @@ class Profile {
       'profileId': profileId,
       'profileName': profileName,
       'createDate': createDate.millisecondsSinceEpoch,
-      'playedTime': playedTime.millisecondsSinceEpoch,
+      'playedTime': playedTime.inSeconds,
       'gameStage': gameStage,
     };
   }
@@ -34,7 +36,7 @@ class Profile {
       profileId: map['profileId'] as String,
       profileName: map['profileName'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      playedTime: DateTime.fromMillisecondsSinceEpoch(map['playedTime'] as int),
+      playedTime: Duration(seconds: map['playedTime'] as int),
       gameStage: map['gameStage'] as int,
     );
   }
