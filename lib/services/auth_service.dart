@@ -1,47 +1,51 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-ValueNotifier<AuthService> authService = ValueNotifier(AuthService());
-
-class AuthService {
+class AuthService extends ChangeNotifier {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-  User? get currentUser => firebaseAuth.currentUser;
-
-  String? get userId => currentUser?.uid;
+  User? _user;
+  User? get user => _user;
 
   Stream<User?> get authStateChanges => firebaseAuth.authStateChanges();
+
+  void authProvider() {
+    firebaseAuth.authStateChanges().listen((User? user) {
+      _user = user;
+      notifyListeners();
+    });
+  }
 
   Future<UserCredential> signIn({
     required String email,
     required String password,
   }) async {
-    return await firebaseAuth.signInWithEmailAndPassword(
+    var userCredential = await firebaseAuth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
+    notifyListeners();
+    return userCredential;
   }
 
   Future<UserCredential> createAccount({
     required String email,
     required String password,
   }) async {
-    return await firebaseAuth.createUserWithEmailAndPassword(
+    var userCredential = await firebaseAuth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
+    return userCredential;
   }
 
   Future<void> signOut() async {
     await firebaseAuth.signOut();
+    notifyListeners();
   }
 
   Future<void> resetPassword({required String email}) async {
     await firebaseAuth.sendPasswordResetEmail(email: email);
-  }
-
-  Future<void> updateUsername({required String username}) async {
-    await currentUser!.updateDisplayName(username);
   }
 
   Future<void> deleteAccount({
@@ -52,8 +56,8 @@ class AuthService {
       email: email,
       password: password,
     );
-    await currentUser!.reauthenticateWithCredential(credential);
-    await currentUser!.delete();
+    await firebaseAuth.currentUser!.reauthenticateWithCredential(credential);
+    await firebaseAuth.currentUser!.delete();
     await firebaseAuth.signOut();
   }
 
@@ -66,7 +70,7 @@ class AuthService {
       email: email,
       password: currentPassword,
     );
-    await currentUser!.reauthenticateWithCredential(credential);
-    await currentUser!.updatePassword(newPassword);
+    await firebaseAuth.currentUser!.reauthenticateWithCredential(credential);
+    await firebaseAuth.currentUser!.updatePassword(newPassword);
   }
 }

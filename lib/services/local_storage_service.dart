@@ -1,27 +1,19 @@
 // lib/services/local_storage_service.dart
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_gregtext_game/models/user/profile.dart';
 import 'package:flutter_gregtext_game/models/user/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LocalStorageService {
+class LocalStorageService extends ChangeNotifier {
   static const String _keyLastProfileId = 'last_profile_Id';
   static const String _keyProfiles = 'profiles';
   static const String _keyUser = 'user';
 
-  static LocalStorageService? _instance;
-  late SharedPreferences _prefs;
+  final SharedPreferences _prefs;
 
-  LocalStorageService._internal();
-
-  static Future<LocalStorageService> getInstance() async {
-    if (_instance == null) {
-      _instance = LocalStorageService._internal();
-      _instance!._prefs = await SharedPreferences.getInstance();
-    }
-    return _instance!;
-  }
+  LocalStorageService(this._prefs);
 
   // Save last used profile
   Future<void> saveLastProfile(String profileId) async {
@@ -29,7 +21,7 @@ class LocalStorageService {
   }
 
   // Get last used profile
-  String? getLastProfileId() {
+  Future<String?> getLastProfileId() async {
     final String? profileId = _prefs.getString(_keyLastProfileId);
     return profileId;
   }
