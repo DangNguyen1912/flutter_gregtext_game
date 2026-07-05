@@ -1,9 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gregtext_game/screens/auth/sign_in_screen.dart';
 import 'package:flutter_gregtext_game/screens/error_screen.dart';
-import 'package:flutter_gregtext_game/screens/game/profile_selection_screen.dart';
-import 'package:flutter_gregtext_game/services/local_storage_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,13 +13,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 // users selections
 
 class AppRouter {
+  // Singleton pattern
+  static final AppRouter _instance = AppRouter._internal();
+  factory AppRouter() => _instance;
+  AppRouter._internal();
+
   late final GoRouter router;
 
-  bool _hasProfile = false;
-  Future<void> initialize(SharedPreferences prefs) async {
-    // Check local storage for saved state
-    String? lastProfileId = await LocalStorageService(prefs).getLastProfileId();
-    _hasProfile = lastProfileId != null && lastProfileId.isNotEmpty;
+  static bool _isAuthenticated = false;
+
+  Future<void> initialize(SharedPreferences prefs, bool isAuthenticated) async {
+    _isAuthenticated = isAuthenticated;
+
     router = GoRouter(
       initialLocation: _getInitialLocation(),
       routes: _buildRoutes(),
@@ -31,8 +35,8 @@ class AppRouter {
   }
 
   String _getInitialLocation() {
-    if (_hasProfile) return '/game/explore';
-    return '/profile';
+    if (!_isAuthenticated) return '/auth/login';
+    return '/explore';
   }
 
   List<RouteBase> _buildRoutes() {
@@ -45,7 +49,7 @@ class AppRouter {
           GoRoute(
             path: 'login',
             name: 'auth-login',
-            builder: (_, _) => const Text("LoginScreen()"),
+            builder: (_, _) => const SignInScreen(),
           ),
           GoRoute(
             path: 'register',
@@ -55,47 +59,31 @@ class AppRouter {
         ],
       ),
 
-      GoRoute(
-        path: '/profile',
-        name: 'profile',
-        builder: (_, _) => const ProfileSelectionScreen(),
-      ),
-
       ShellRoute(
         builder: (_, _, child) => Text("GameShell(child: child)"),
         routes: [
           GoRoute(
-            path: '/game/explore',
+            path: '/explore',
             name: 'game-explore',
             builder: (_, _) => const Text("ExploreScreen()"),
-            routes: [
-              // GoRoute(
-              //   path: 'location/:locationId',
-              //   name: 'game-location',
-              //   builder: (_ , _) {
-              //     final locationId = state.pathParameters['locationId']!;
-              //     return Text("LocationDetailScreen(locationId: locationId)");
-              //   },
-              // ),
-            ],
           ),
           GoRoute(
-            path: '/game/base',
+            path: '/base',
             name: 'game-base',
             builder: (_, _) => const Text("BaseScreen()"),
           ),
           GoRoute(
-            path: '/game/craft',
+            path: '/craft',
             name: 'game-craft',
             builder: (_, _) => const Text("CraftScreen()"),
           ),
           GoRoute(
-            path: '/game/settings',
+            path: '/settings',
             name: 'game-settings',
             builder: (_, _) => const Text("SettingsScreen()"),
           ),
           GoRoute(
-            path: '/game/more',
+            path: '/more',
             name: 'game-more',
             builder: (_, _) => const Text("MoreScreen()"),
           ),
@@ -105,18 +93,10 @@ class AppRouter {
   }
 
   String? _redirectLogic(BuildContext context, GoRouterState state) {
-    // Allow access to profile screens if no profile exists
-    final isProfileScreen = state.matchedLocation.startsWith('/profile');
-    final isGameScreen = state.matchedLocation.startsWith('/game');
+    final isAuthScreen = state.matchedLocation.startsWith('/auth');
 
-    // If no profile and trying to access game, go to profile selection
-    if (!_hasProfile && isGameScreen) {
-      return '/profile';
-    }
-
-    // If has profile and on profile screens, go to game
-    if (_hasProfile && isProfileScreen) {
-      return '/game/explore';
+    if (!_isAuthenticated && !isAuthScreen) {
+      return '/auth/login';
     }
 
     return null;

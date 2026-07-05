@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gregtext_game/services/auth_service.dart';
+import 'package:flutter_gregtext_game/services/database_service.dart';
 import 'package:flutter_gregtext_game/services/local_storage_service.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,6 +11,8 @@ import './screens/routes.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
+  usePathUrlStrategy();
+
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase (optional, will work without if not available)
@@ -24,48 +28,30 @@ Future<void> main() async {
   var prefs = await SharedPreferences.getInstance();
 
   var appRouter = AppRouter();
-  await appRouter.initialize(prefs);
-  var router = appRouter.router;
+  await appRouter.initialize(prefs, AuthService().hasUser());
 
-  runApp(MainApp(router: router, prefs: prefs));
+  runApp(MainApp(appRouter: appRouter, prefs: prefs));
 }
 
-class MainApp extends StatefulWidget {
-  const MainApp({super.key, required this.router, required this.prefs});
+class MainApp extends StatelessWidget {
+  const MainApp({super.key, required this.appRouter, required this.prefs});
 
-  final GoRouter router;
+  final AppRouter appRouter;
   final SharedPreferences prefs;
 
-  @override
-  State<MainApp> createState() => _MainAppState();
-}
-
-class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => LocalStorageService(widget.prefs),
-        ),
+        ChangeNotifierProvider(create: (_) => LocalStorageService(prefs)),
+        ChangeNotifierProvider(create: (_) => DatabaseService()),
       ],
       child: MaterialApp.router(
         title: "Gregtext",
         theme: ThemeData.dark().copyWith(
-          primaryColor: Colors.blue,
-          scaffoldBackgroundColor: Colors.black,
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.black,
-            elevation: 0,
-          ),
-          cardTheme: CardThemeData(
-            color: Colors.grey[900],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+          colorScheme: ColorScheme.dark(primary: Colors.blue),
         ),
-        routerConfig: widget.router,
+        routerConfig: appRouter.router,
         debugShowCheckedModeBanner: false,
       ),
     );

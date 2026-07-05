@@ -9,6 +9,10 @@ class AuthService extends ChangeNotifier {
 
   Stream<User?> get authStateChanges => firebaseAuth.authStateChanges();
 
+  bool hasUser() {
+    return _user != null;
+  }
+
   void authProvider() {
     firebaseAuth.authStateChanges().listen((User? user) {
       _user = user;

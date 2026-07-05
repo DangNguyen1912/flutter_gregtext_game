@@ -2,64 +2,31 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gregtext_game/models/user/profile.dart';
-import 'package:flutter_gregtext_game/models/user/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorageService extends ChangeNotifier {
   static const String _keyLastProfileId = 'last_profile_Id';
-  static const String _keyProfiles = 'profiles';
-  static const String _keyUser = 'user';
+  static const String _keyTheme = 'theme';
 
   final SharedPreferences _prefs;
 
   LocalStorageService(this._prefs);
 
-  // Save last used profile
-  Future<void> setLastProfile(String profileId) async {
-    await _prefs.setString(_keyLastProfileId, jsonEncode(profileId));
-  }
-
-  // Get last used profile
-  Future<String?> getLastProfileId() async {
+  String? getLastProfileId() {
     final String? profileId = _prefs.getString(_keyLastProfileId);
     return profileId;
   }
 
-  Future<void> setProfiles(List<Profile> profiles) async {
-    final List<String> jsonList = profiles
-        .map((profile) => profile.toJson())
-        .toList();
-    final String jsonString = jsonEncode(jsonList);
-    await _prefs.setString(_keyProfiles, jsonString);
-    notifyListeners();
+  void setLastProfile(String profileId) {
+    _prefs.setString(_keyLastProfileId, jsonEncode(profileId));
   }
 
-  List<Profile> getProfiles() {
-    final String? jsonString = _prefs.getString(_keyProfiles);
-    if (jsonString == null || jsonString.isEmpty) {
-      return [];
-    }
-    try {
-      final List<dynamic> jsonList = jsonDecode(jsonString);
-      return jsonList.map((json) => Profile.fromJson(json)).toList();
-    } catch (e) {
-      return [];
-    }
+  String getTheme() {
+    final String profileId = _prefs.getString(_keyTheme) ?? 'system';
+    return profileId;
   }
 
-  Future<void> setUser(User user) async {
-    String key = _keyUser + user.userId;
-    await _prefs.setString(key, user.toJson());
-    notifyListeners();
-  }
-
-  User getUserById(String userId) {
-    String key = _keyUser + userId;
-    final String? jsonString = _prefs.getString(key);
-    if (jsonString == null) {
-      throw "cant find user";
-    }
-    return User.fromJson(jsonString);
+  void setTheme(String profileId) {
+    _prefs.setString(_keyTheme, jsonEncode(profileId));
   }
 }
