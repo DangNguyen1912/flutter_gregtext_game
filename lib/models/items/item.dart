@@ -4,17 +4,23 @@ import 'dart:convert';
 class Item {
   String itemName;
   int count;
+  List<String> tags;
 
-  Item({required this.itemName, required this.count});
+  Item({required this.itemName, required this.count, required this.tags});
 
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{'itemName': itemName, 'count': count};
+    return <String, dynamic>{
+      'itemName': itemName,
+      'count': count,
+      'tags': tags,
+    };
   }
 
   factory Item.fromMap(Map<String, dynamic> map) {
     return Item(
       itemName: map['itemName'] as String,
       count: map['count'] as int,
+      tags: List<String>.from((map['tags'] as List<String>)),
     );
   }
 
