@@ -7,7 +7,7 @@ class User {
   String userId;
   String userName;
   DateTime createDate;
-  DateTime playedTime;
+  Duration playedTime;
   Inventory inventory;
   int gameStage;
 
@@ -16,16 +16,16 @@ class User {
     required this.userName,
     required this.createDate,
     required this.playedTime,
-    required this.inventory,
     required this.gameStage,
-  });
+    Inventory? inventory,
+  }) : inventory = inventory ?? Inventory(inventory: List.empty());
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'userId': userId,
       'userName': userName,
       'createDate': createDate.millisecondsSinceEpoch,
-      'playedTime': playedTime.millisecondsSinceEpoch,
+      'playedTime': playedTime.inSeconds,
       'inventory': inventory.toMap(),
       'gameStage': gameStage,
     };
@@ -36,7 +36,7 @@ class User {
       userId: map['userId'] as String,
       userName: map['userName'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      playedTime: DateTime.fromMillisecondsSinceEpoch(map['playedTime'] as int),
+      playedTime: Duration(seconds: map['playedTime'] as int),
       inventory: Inventory.fromMap(map['inventory'] as Map<String, dynamic>),
       gameStage: map['gameStage'] as int,
     );
