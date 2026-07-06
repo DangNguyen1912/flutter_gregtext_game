@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:flutter_gregtext_game/models/area.dart';
 import 'package:flutter_gregtext_game/models/user/inventory.dart';
 
 class User {
@@ -9,6 +10,7 @@ class User {
   DateTime createDate;
   Duration playedTime;
   Inventory inventory;
+  List<Area> exploredArea;
   int gameStage;
 
   User({
@@ -18,7 +20,9 @@ class User {
     required this.playedTime,
     required this.gameStage,
     Inventory? inventory,
-  }) : inventory = inventory ?? Inventory(inventory: List.empty());
+    List<Area>? exploredArea,
+  }) : inventory = inventory ?? Inventory(inventory: List.empty()),
+       exploredArea = exploredArea ?? List.empty();
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
