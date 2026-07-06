@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gregtext_game/screens/auth/forgot_password_screen.dart';
 import 'package:flutter_gregtext_game/screens/auth/register_screen.dart';
 import 'package:flutter_gregtext_game/screens/auth/sign_in_screen.dart';
 import 'package:flutter_gregtext_game/screens/game/base_screen.dart';
@@ -46,16 +47,21 @@ class AppRouter {
         GoRoute(
           path: '/login',
           name: 'login',
-          builder: (context, state) => const SignInScreen(),
+          builder: (_, _) => const SignInScreen(),
         ),
         GoRoute(
           path: '/register',
           name: 'register',
-          builder: (context, state) => const RegisterScreen(),
+          builder: (_, _) => const RegisterScreen(),
+        ),
+        GoRoute(
+          path: '/forgot-password',
+          name: 'forgot-password',
+          builder: (_, _) => const ForgotPasswordScreen(),
         ),
         // Main game routes with bottom nav
         StatefulShellRoute.indexedStack(
-          builder: (context, state, navigationShell) =>
+          builder: (_, _, navigationShell) =>
               ShellNavBar(navigationShell: navigationShell),
           branches: [
             _statefulShellBranch('explore', const ExploreScreen()),
@@ -74,7 +80,7 @@ class AppRouter {
         GoRoute(
           path: '/$path',
           name: path,
-          pageBuilder: (context, state) {
+          pageBuilder: (context, _) {
             final authService = Provider.of<AuthService>(
               context,
               listen: false,
