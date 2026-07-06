@@ -7,7 +7,7 @@ import 'package:flutter_gregtext_game/screens/game/craft_screen.dart';
 import 'package:flutter_gregtext_game/screens/game/explore_screen.dart';
 import 'package:flutter_gregtext_game/screens/game/inventory_screen.dart';
 import 'package:flutter_gregtext_game/screens/game/shell_nav_bar.dart';
-import 'package:flutter_gregtext_game/screens/profile_screen.dart';
+import 'package:flutter_gregtext_game/screens/settings_screen.dart';
 import 'package:flutter_gregtext_game/services/auth_service.dart';
 import 'package:flutter_gregtext_game/services/database_service.dart';
 import 'package:go_router/go_router.dart';
@@ -69,7 +69,7 @@ class AppRouter {
             _statefulShellBranch('base', const BaseScreen()),
             _statefulShellBranch('inventory', const InventoryScreen()),
             _statefulShellBranch('craft', const CraftScreen()),
-            _statefulShellBranch('profile', const ProfileScreen()),
+            _statefulShellBranch('settings', const SettingsScreen()),
           ],
         ),
       ],
