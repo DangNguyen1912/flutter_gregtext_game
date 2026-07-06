@@ -1,11 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gregtext_game/services/auth_service.dart';
-import 'package:flutter_gregtext_game/services/database_service.dart';
-import 'package:flutter_gregtext_game/services/local_storage_service.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import './screens/routes.dart';
 import 'firebase_options.dart';
@@ -23,36 +20,51 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Firebase not available: $e');
   }
+
   Provider.debugCheckInvalidValueType = null;
 
-  var prefs = await SharedPreferences.getInstance();
-
-  var appRouter = AppRouter();
-  await appRouter.initialize(prefs, AuthService().hasUser());
-
-  runApp(MainApp(appRouter: appRouter, prefs: prefs));
+  runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key, required this.appRouter, required this.prefs});
-
-  final AppRouter appRouter;
-  final SharedPreferences prefs;
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LocalStorageService(prefs)),
-        ChangeNotifierProvider(create: (_) => DatabaseService()),
-      ],
-      child: MaterialApp.router(
-        title: "Gregtext",
-        theme: ThemeData.dark().copyWith(
-          colorScheme: ColorScheme.dark(primary: Colors.blue),
-        ),
-        routerConfig: appRouter.router,
-        debugShowCheckedModeBanner: false,
+    return ChangeNotifierProvider(
+      create: (_) => AuthService(),
+      child: Consumer<AuthService>(
+        builder: (context, authService, _) {
+          if (!authService.isInitialized) {
+            return const MaterialApp(
+              home: Scaffold(body: Center(child: CircularProgressIndicator())),
+            );
+          }
+
+          return MaterialApp.router(
+            title: "Gregtext",
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.blue,
+                brightness: Brightness.light,
+              ),
+              appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
+            ),
+            darkTheme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.blue,
+                brightness: Brightness.dark,
+              ),
+              appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
+            ),
+            themeMode: ThemeMode.system,
+            routerConfig: AppRouter.router(authService),
+            debugShowCheckedModeBanner: false,
+          );
+        },
       ),
     );
   }
