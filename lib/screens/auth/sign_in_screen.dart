@@ -124,11 +124,20 @@ class _SignInScreenState extends State<SignInScreen> {
                 },
                 child: const Text('Don\'t have an account? Register'),
               ),
-              TextButton(
-                onPressed: () {
-                  // TODO: Implement password reset dialog
-                },
-                child: const Text('Forgot Password?'),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    // Navigate to forgot password screen
+                    context.push('/forgot-password');
+                  },
+                  style: TextButton.styleFrom(
+                    minimumSize: Size.zero,
+                    padding: EdgeInsets.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text('Forgot Password?'),
+                ),
               ),
             ],
           ),
