@@ -1,115 +1,93 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_gregtext_game/screens/auth/register_screen.dart';
 import 'package:flutter_gregtext_game/screens/auth/sign_in_screen.dart';
-import 'package:flutter_gregtext_game/screens/error_screen.dart';
+import 'package:flutter_gregtext_game/screens/game/base_screen.dart';
+import 'package:flutter_gregtext_game/screens/game/craft_screen.dart';
+import 'package:flutter_gregtext_game/screens/game/explore_screen.dart';
+import 'package:flutter_gregtext_game/screens/game/shell_nav_bar.dart';
+import 'package:flutter_gregtext_game/screens/profile_screen.dart';
+import 'package:flutter_gregtext_game/services/auth_service.dart';
+import 'package:flutter_gregtext_game/services/database_service.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 // explore (biomes, ore)
 // base (expandable (sizes and multible bases), item/fluid storage (ME??), machines),
 // craft
-// login not req
-// users selections
 
 class AppRouter {
-  // Singleton pattern
-  static final AppRouter _instance = AppRouter._internal();
-  factory AppRouter() => _instance;
-  AppRouter._internal();
+  static GoRouter router(AuthService authService) {
+    return GoRouter(
+      initialLocation: '/',
+      redirect: (context, state) {
+        final isAuthenticated = authService.isAuthenticated;
+        final isInitialized = authService.isInitialized;
+        final isAuthRoute =
+            state.matchedLocation == '/login' ||
+            state.matchedLocation == '/register';
 
-  late final GoRouter router;
+        // Wait for auth to initialize
+        if (!isInitialized) return null;
 
-  static bool _isAuthenticated = false;
+        if (!isAuthenticated && !isAuthRoute) return '/login';
 
-  Future<void> initialize(SharedPreferences prefs, bool isAuthenticated) async {
-    _isAuthenticated = isAuthenticated;
+        if (isAuthenticated && isAuthRoute) return '/explore';
 
-    router = GoRouter(
-      initialLocation: _getInitialLocation(),
-      routes: _buildRoutes(),
-      redirect: _redirectLogic,
-      errorBuilder: (context, state) => const ErrorScreen(),
-      refreshListenable: GoRouterRefreshListenable(),
+        // If authenticated and at root, go to explore
+        if (isAuthenticated && state.matchedLocation == '/') return '/explore';
+
+        // If not authenticated at root, go to login
+        if (!isAuthenticated && state.matchedLocation == '/') return '/login';
+
+        return null;
+      },
+      routes: [
+        // Auth routes
+        GoRoute(
+          path: '/login',
+          name: 'login',
+          builder: (context, state) => const SignInScreen(),
+        ),
+        GoRoute(
+          path: '/register',
+          name: 'register',
+          builder: (context, state) => const RegisterScreen(),
+        ),
+        // Main game routes with bottom nav
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) =>
+              ShellNavBar(navigationShell: navigationShell),
+          branches: [
+            _statefulShellBranch('explore', const ExploreScreen()),
+            _statefulShellBranch('base', const BaseScreen()),
+            _statefulShellBranch('craft', const CraftScreen()),
+            _statefulShellBranch('profile', const ProfileScreen()),
+          ],
+        ),
+      ],
     );
   }
 
-  String _getInitialLocation() {
-    if (!_isAuthenticated) return '/auth/login';
-    return '/explore';
-  }
-
-  List<RouteBase> _buildRoutes() {
-    return [
-      GoRoute(
-        path: '/auth',
-        name: 'auth',
-        redirect: (_, _) => '/auth/login',
-        routes: [
-          GoRoute(
-            path: 'login',
-            name: 'auth-login',
-            builder: (_, _) => const SignInScreen(),
-          ),
-          GoRoute(
-            path: 'register',
-            name: 'auth-register',
-            builder: (_, _) => const Text("RegisterScreen()"),
-          ),
-        ],
-      ),
-
-      ShellRoute(
-        builder: (_, _, child) => Text("GameShell(child: child)"),
-        routes: [
-          GoRoute(
-            path: '/explore',
-            name: 'game-explore',
-            builder: (_, _) => const Text("ExploreScreen()"),
-          ),
-          GoRoute(
-            path: '/base',
-            name: 'game-base',
-            builder: (_, _) => const Text("BaseScreen()"),
-          ),
-          GoRoute(
-            path: '/craft',
-            name: 'game-craft',
-            builder: (_, _) => const Text("CraftScreen()"),
-          ),
-          GoRoute(
-            path: '/settings',
-            name: 'game-settings',
-            builder: (_, _) => const Text("SettingsScreen()"),
-          ),
-          GoRoute(
-            path: '/more',
-            name: 'game-more',
-            builder: (_, _) => const Text("MoreScreen()"),
-          ),
-        ],
-      ),
-    ];
-  }
-
-  String? _redirectLogic(BuildContext context, GoRouterState state) {
-    final isAuthScreen = state.matchedLocation.startsWith('/auth');
-
-    if (!_isAuthenticated && !isAuthScreen) {
-      return '/auth/login';
-    }
-
-    return null;
-  }
-}
-
-class GoRouterRefreshListenable extends ChangeNotifier {
-  static final GoRouterRefreshListenable _instance =
-      GoRouterRefreshListenable._internal();
-  factory GoRouterRefreshListenable() => _instance;
-  GoRouterRefreshListenable._internal();
-
-  void refresh() {
-    notifyListeners();
+  static StatefulShellBranch _statefulShellBranch(String path, Widget child) {
+    return StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: '/$path',
+          name: path,
+          pageBuilder: (context, state) {
+            final authService = Provider.of<AuthService>(
+              context,
+              listen: false,
+            );
+            return MaterialPage(
+              child: Provider<DatabaseService>(
+                create: (_) => DatabaseService(userId: authService.user!.uid),
+                child: child,
+              ),
+            );
+          },
+        ),
+      ],
+    );
   }
 }
