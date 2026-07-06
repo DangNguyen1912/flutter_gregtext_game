@@ -27,6 +27,7 @@ class _ShellNavBarState extends State<ShellNavBar> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explore'),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Base'),
+          BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Inv'),
           BottomNavigationBarItem(icon: Icon(Icons.build), label: 'Craft'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Setting'),
         ],
