@@ -1,5 +1,7 @@
 // screens/auth/forgot_password_screen.dart
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/auth_service.dart';
@@ -39,7 +41,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       setState(() {
         _isEmailSent = true;
       });
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = e.toString();
       });
@@ -58,16 +60,46 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pop();
+            context.pop();
           },
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: _isEmailSent ? _buildSuccessWidget() : _buildFormWidget(),
-          ),
+        padding: const EdgeInsets.all(64.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _isEmailSent
+                ? _buildSuccessWidget()
+                : _buildFormWidget(), // Send Button
+            Column(
+              children: [
+                SizedBox(
+                  width: 192,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _sendResetEmail,
+                    child: _isLoading
+                        ? CircularProgressIndicator(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                          )
+                        : Text(
+                            _isEmailSent ? 'Resend Email' : 'Send Reset Link',
+                          ),
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Back to Login
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Back to Login'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -77,37 +109,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Form(
       key: _formKey,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Icon
-          Icon(
-            Icons.lock_reset,
-            size: 80,
-            color: Theme.of(context).primaryColor,
-          ),
-          const SizedBox(height: 24),
-
-          // Title
-          Text(
-            'Reset Password',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-
-          // Description
-          Text(
-            'Enter your email address and we\'ll send you a link to reset your password.',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-
           // Email Field
           TextFormField(
             controller: _emailController,
@@ -134,71 +136,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             },
             onFieldSubmitted: (_) => _sendResetEmail(),
           ),
-
+          const SizedBox(height: 8),
+          // Description
+          Text(
+            'Enter your email address and we\'ll send you a link to reset your password.',
+          ),
           if (_errorMessage != null) ...[
             const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.shade200),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.error_outline, color: Colors.red.shade700),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      _errorMessage!,
-                      style: TextStyle(color: Colors.red.shade700),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
           ],
-
-          const SizedBox(height: 32),
-
-          // Send Button
-          SizedBox(
-            height: 50,
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _sendResetEmail,
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: _isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : const Text(
-                      'Send Reset Link',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Back to Login
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Back to Login'),
-          ),
         ],
       ),
     );
@@ -206,25 +152,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   Widget _buildSuccessWidget() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Success Icon
-        Container(
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(
-            color: Colors.green.shade50,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.check_circle,
-            size: 60,
-            color: Colors.green.shade700,
-          ),
-        ),
-        const SizedBox(height: 24),
-
         // Title
         Text(
           'Check Your Email',
@@ -295,34 +223,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ],
               ),
             ],
-          ),
-        ),
-        const SizedBox(height: 32),
-
-        // Resend Button
-        TextButton(
-          onPressed: _sendResetEmail,
-          child: const Text('Resend Email'),
-        ),
-
-        const SizedBox(height: 8),
-
-        // Back to Login Button
-        SizedBox(
-          height: 50,
-          child: OutlinedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            style: OutlinedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'Back to Login',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
           ),
         ),
       ],
