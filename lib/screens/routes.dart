@@ -26,7 +26,8 @@ class AppRouter {
         final isInitialized = authService.isInitialized;
         final isAuthRoute =
             state.matchedLocation == '/login' ||
-            state.matchedLocation == '/register';
+            state.matchedLocation == '/register' ||
+            state.matchedLocation == '/forgotpassword';
 
         // Wait for auth to initialize
         if (!isInitialized) return null;
@@ -56,8 +57,8 @@ class AppRouter {
           builder: (_, _) => const RegisterScreen(),
         ),
         GoRoute(
-          path: '/forgot-password',
-          name: 'forgot-password',
+          path: '/forgotpassword',
+          name: 'forgotpassword',
           builder: (_, _) => const ForgotPasswordScreen(),
         ),
         // Main game routes with bottom nav
