@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gregtext_game/services/database_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/user/game_user.dart';
 import '../../services/auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -43,6 +45,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text,
         username: _usernameController.text.trim(),
       );
+      var db = DatabaseService(userId: authService.user!.uid);
+      await db.saveUser(
+        GameUser(
+          userId: authService.user!.uid,
+          userName: _usernameController.text.trim(),
+          createDate: DateTime.now(),
+          playedTime: Duration(),
+          gameStage: 0,
+        ),
+      );
+
       // Navigation handled by router redirect
     } on FirebaseAuthException catch (e) {
       setState(() {
