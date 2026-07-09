@@ -13,27 +13,56 @@ class ShellNavBar extends StatefulWidget {
 class _ShellNavBarState extends State<ShellNavBar> {
   @override
   Widget build(BuildContext context) {
+    double ligterDarker() {
+      return MediaQuery.of(context).platformBrightness == Brightness.dark
+          ? 0.1
+          : -0.1;
+    }
+
+    var surface = Theme.of(context).colorScheme.surface;
+    var bgColor = surface.withValues(
+      red: (surface.r + ligterDarker()).clamp(0, 1),
+      green: (surface.g + ligterDarker()).clamp(0, 1),
+      blue: (surface.b + ligterDarker()).clamp(0, 1),
+    );
     return Scaffold(
       body: widget.navigationShell,
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: widget.navigationShell.currentIndex,
-        onTap: (index) {
-          widget.navigationShell.goBranch(
-            index,
-            initialLocation: index == widget.navigationShell.currentIndex,
-          );
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explore'),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Base'),
-          BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Inv'),
-          BottomNavigationBarItem(icon: Icon(Icons.build), label: 'Craft'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.only(top: 8.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadiusGeometry.vertical(top: Radius.circular(24)),
+          color: bgColor,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadiusGeometry.vertical(top: Radius.circular(24)),
+          child: BottomNavigationBar(
+            backgroundColor: bgColor,
+            type: BottomNavigationBarType.fixed,
+            currentIndex: widget.navigationShell.currentIndex,
+            onTap: (index) {
+              widget.navigationShell.goBranch(
+                index,
+                initialLocation: index == widget.navigationShell.currentIndex,
+              );
+            },
+            selectedFontSize: 18,
+            items:
+                [
+                      (Icons.explore, 'Explore'),
+                      (Icons.home, 'Base'),
+                      (Icons.inventory, 'Inventory'),
+                      (Icons.build, 'Craft'),
+                      (Icons.settings, 'Settings'),
+                    ]
+                    .map(
+                      (e) => BottomNavigationBarItem(
+                        icon: Icon(e.$1),
+                        label: e.$2,
+                      ),
+                    )
+                    .toList(),
           ),
-        ],
+        ),
       ),
     );
   }
