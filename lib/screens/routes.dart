@@ -6,10 +6,10 @@ import 'package:flutter_gregtext_game/screens/game/base_screen.dart';
 import 'package:flutter_gregtext_game/screens/game/craft_screen.dart';
 import 'package:flutter_gregtext_game/screens/game/explore_screen.dart';
 import 'package:flutter_gregtext_game/screens/game/inventory_screen.dart';
-import 'package:flutter_gregtext_game/screens/game/shell_nav_bar.dart';
 import 'package:flutter_gregtext_game/screens/settings_screen.dart';
 import 'package:flutter_gregtext_game/services/auth_service.dart';
 import 'package:flutter_gregtext_game/services/database_service.dart';
+import 'package:flutter_gregtext_game/widgets/shell_nav_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
