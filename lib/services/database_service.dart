@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_gregtext_game/models/user/user.dart';
-import 'package:flutter_gregtext_game/models/items/item.dart';
 import 'package:flutter_gregtext_game/models/area.dart';
+import 'package:flutter_gregtext_game/models/items/item.dart';
+import 'package:flutter_gregtext_game/models/user/game_user.dart';
 
 class DatabaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -10,22 +10,21 @@ class DatabaseService {
   DatabaseService({required this.userId});
 
   // User CRUD
-  Future<void> saveUser(User user) async {
+  Future<void> saveUser(GameUser user) async {
     await _firestore
         .collection('users')
         .doc(userId)
         .set(user.toMap(), SetOptions(merge: true));
   }
 
-  Future<User?> getUser() async {
+  Future<GameUser?> getUser() async {
     try {
       DocumentSnapshot doc = await _firestore
           .collection('users')
           .doc(userId)
           .get();
-
       if (doc.exists) {
-        return User.fromMap(doc.data() as Map<String, dynamic>);
+        return GameUser.fromMap(doc.data() as Map<String, dynamic>);
       }
       return null;
     } catch (e) {
@@ -34,10 +33,10 @@ class DatabaseService {
   }
 
   // Real-time user updates
-  Stream<User?> streamUser() {
+  Stream<GameUser?> streamUser() {
     return _firestore.collection('users').doc(userId).snapshots().map((doc) {
       if (doc.exists) {
-        return User.fromMap(doc.data() as Map<String, dynamic>);
+        return GameUser.fromMap(doc.data() as Map<String, dynamic>);
       }
       return null;
     });
@@ -46,7 +45,9 @@ class DatabaseService {
   // Inventory operations
   Future<void> updateInventory(List<Item> inventory) async {
     await _firestore.collection('users').doc(userId).update({
-      'inventory': inventory.map((item) => item.toMap()).toList(),
+      'inventory': {
+        'inventory': inventory.map((item) => item.toMap()).toList(),
+      },
     });
   }
 

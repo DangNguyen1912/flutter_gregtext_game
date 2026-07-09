@@ -46,12 +46,12 @@ class Inventory {
   }
 
   factory Inventory.fromMap(Map<String, dynamic> map) {
+    final inventoryList = map['inventory'] as List<dynamic>;
+
     return Inventory(
-      inventory: List<Item>.from(
-        (map['inventory'] as List<int>).map<Item>(
-          (x) => Item.fromMap(x as Map<String, dynamic>),
-        ),
-      ),
+      inventory: inventoryList
+          .map<Item>((x) => Item.fromMap(x as Map<String, dynamic>))
+          .toList(),
     );
   }
 

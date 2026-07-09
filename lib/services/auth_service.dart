@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../models/user/user.dart' as game;
+import '../models/user/game_user.dart' as game;
 
 class AuthService extends ChangeNotifier {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
@@ -55,7 +55,7 @@ class AuthService extends ChangeNotifier {
       );
 
       // Create user document in Firestore
-      final gameUser = game.User(
+      final gameUser = game.GameUser(
         userId: userCredential.user!.uid,
         userName: username,
         createDate: DateTime.now(),

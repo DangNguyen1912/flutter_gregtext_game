@@ -5,14 +5,22 @@ class Item {
   String itemName;
   int count;
   List<String> tags;
+  // use for sorting a filtering in inventory
+  String iventoryType;
 
-  Item({required this.itemName, required this.count, required this.tags});
+  Item({
+    required this.itemName,
+    required this.count,
+    required this.tags,
+    required this.iventoryType,
+  });
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'itemName': itemName,
       'count': count,
       'tags': tags,
+      'iventoryType': iventoryType,
     };
   }
 
@@ -20,7 +28,8 @@ class Item {
     return Item(
       itemName: map['itemName'] as String,
       count: map['count'] as int,
-      tags: List<String>.from((map['tags'] as List<String>)),
+      tags: List<String>.from((map['tags'] as List<dynamic>)),
+      iventoryType: map['iventoryType'] as String,
     );
   }
 

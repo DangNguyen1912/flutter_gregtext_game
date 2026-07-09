@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter_gregtext_game/models/area.dart';
 import 'package:flutter_gregtext_game/models/user/inventory.dart';
 
-class User {
+class GameUser {
   String userId;
   String userName;
   DateTime createDate;
@@ -13,7 +13,7 @@ class User {
   List<Area> exploredArea;
   int gameStage;
 
-  User({
+  GameUser({
     required this.userId,
     required this.userName,
     required this.createDate,
@@ -35,8 +35,8 @@ class User {
     };
   }
 
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
+  factory GameUser.fromMap(Map<String, dynamic> map) {
+    return GameUser(
       userId: map['userId'] as String,
       userName: map['userName'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
@@ -48,6 +48,6 @@ class User {
 
   String toJson() => json.encode(toMap());
 
-  factory User.fromJson(String source) =>
-      User.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory GameUser.fromJson(String source) =>
+      GameUser.fromMap(json.decode(source) as Map<String, dynamic>);
 }
