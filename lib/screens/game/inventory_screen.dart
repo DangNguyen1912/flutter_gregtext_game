@@ -27,8 +27,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   Future<void> _loadUser() async {
     final db = Provider.of<DatabaseService>(context, listen: false);
-    final user = await db.getUser();
     await Future.delayed(Duration(seconds: 1));
+    final user = await db.getUser();
     setState(() {
       _user = user;
       _isLoading = false;
