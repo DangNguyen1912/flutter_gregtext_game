@@ -10,7 +10,7 @@ class Area {
   }
 
   factory Area.fromMap(Map<String, dynamic> map) {
-    return Area(name: map['name'] as String);
+    return Area(name: map['name'] as String? ?? '');
   }
 
   String toJson() => json.encode(toMap());
